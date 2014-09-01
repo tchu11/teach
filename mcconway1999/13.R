@@ -1,0 +1,83 @@
+# McConway KJ, Jones MC, Taylor PC.
+# Statistical Modelling using GENSTAT.
+# London, UK: Arnold, 1999.
+# ISBN: 0340759852
+
+anova(model, update(model, .~.^5), test = 'Chisq')
+anova(model, test = 'Chisq')
+summary(model)
+exp(coef(model))
+
+plot(hatvalues(model), pch = 4) # index plot of leverages
+par(mfrow = c(2, 3))
+plot(model, which = 1:6)
+dev.off()
+
+# Chapter 13: Further data analyses
+chemeng <- read.table('chemeng.dat', header = TRUE)
+pairs(chemeng, pch = 4)
+x <- cor(chemeng[, -1])
+round(x, 3)
+abs(x) > .5
+model0 <- lm(agglom ~ 1, chemeng)
+model1 <- lm(agglom ~ ., chemeng)
+model <- step(model0, direction='both', scope=list(lower = 'agglom~1', upper = paste('agglom ~', paste(colnames(chemeng)[-1], collapse='+'))))
+model <- step(model1)
+model <- lm(agglom ~ flowpreg + causpreg + ratpreg + ratover, chemeng)
+model <- lm(agglom ~ causpreg + ratpreg, chemeng[-c(32, 43), ])
+model <- lm(agglom ~ causpreg + ratpreg, chemeng[-c(12, 32, 42, 43), ])
+table(chemeng[-c(12, 32, 42, 43), c(6, 9)])
+predict(model, newdata = data.frame(causpreg = 244, ratpreg = .6), type = 'response', interval = 'confidence')
+
+prostat <- read.table('prostat.dat', header = TRUE)
+model <- glm(nodal ~ acid + age + xray + tgrade + tsize, prostat, family = 'binomial')
+plot(nodal ~ acid, prostat, pch = 4)
+model <- update(model, .~., prostat[-24, ])
+model1 <- update(model, .~.^2)
+model0 <- update(model, .~ 1)
+model <- step(model1)
+model <- step(model0, scope = list(upper = nodal ~ (acid + age + xray + tgrade + tsize)^2))
+model1 <- glm(nodal ~ acid + xray + tgrade + tsize + acid:tgrade + acid:tsize + tgrade:tsize, prostat[-24, ], family = 'binomial')
+model0 <- glm(nodal ~ acid + xray + tsize, prostat[-24, ], family = 'binomial')
+anova(model1, model0, test = 'Chisq')
+model <- glm(nodal ~ acid * tgrade * tsize - acid:tgrade:tsize + xray, prostat[-24, ], family = 'binomial')
+predict(model, newdata = data.frame(acid = .55, xray = 0, tsize = 0, tgrade = 0), type = 'response', se.fit = TRUE)
+predict(model, newdata = data.frame(acid = .55, xray = 0, tsize = 1, tgrade = 0), type = 'response', se.fit = TRUE)
+predict(model, newdata = data.frame(acid = .55, xray = 0, tsize = 1, tgrade = 1), type = 'response', se.fit = TRUE)
+
+apple <- read.table('apple.dat', header = TRUE)
+apple$treat <- relevel(apple$treat, ref = 'O')
+tapply(apple$weight, apple$treat, mean)
+tapply(apple$weight, apple$treat, var)
+plot(weight ~ treat, apple)
+tapply(apple$before, apple$treat, mean)
+tapply(apple$before, apple$treat, var)
+plot(weight ~ before, apple, pch = c(4, 16, 0, 3, 1, 15)[as.integer(apple$treat)], 
+     ylim = c(150, 375), xlim = c(4.5, 10.5))
+model <- lm(weight ~ block + before + treat, apple)
+anova(model)
+model1 <- lm(weight ~ before + treat, apple)
+x <- expand.grid(before = seq(5.5, 10.5, by = .1), treat = levels(apple$treat))
+x$weight <- predict(model1, newdata = x)
+x <- split(x, x$treat)
+lapply(x, FUN = function(y) lines(y$weight ~ y$before))
+add1(model, .~.+ before:treat, test = 'F')
+cbind(coef(model), confint(model))
+x <- expand.grid(before = mean(apple$before), treat = levels(apple$treat), block = levels(apple$block))
+y <- predict(model, newdata = x, se.fit = TRUE)
+round(tapply(y$fit, x$treat, mean), 2)
+model <- update(model, .~.- before)
+
+seizure <- read.table('seizure.dat', header = TRUE)
+plot(seizures ~ patient, seizure, pch = c(4, 16)[seizure$treat + 1])
+plot(log(seizures + .5) ~ patient, seizure, pch = c(4, 16)[seizure$treat + 1])
+legend('topleft', pch = c(4, 16), c('treat = 0', 'treat = 1'), bty = 'n')
+model1 <- model <- glm(seizures ~ factor(patient) + treat + period + offset(log(exposure)), seizure, family = 'poisson')
+print(disp.para <- model$deviance / model$df.residual)
+print(disp.para <- sum((residuals(model, type = 'pearson'))^2) / model$df.residual)
+model <- update(model, family = 'quasipoisson')
+model <- update(model, .~.- period)
+drop1(model, test = 'F')
+seizure <- seizure[-c(9, 24), ]
+summary(model, dispersion = 4.28)
+summary(model, dispersion = 1)
