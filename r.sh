@@ -10,9 +10,10 @@ echo
 echo -n "Enter choice [1-4] or do nothing to skip: "
 read -t 15 -n 1 INSTALL
 echo
-gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
-test $? != 0 && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E084DAB9
-gpg -a --export E084DAB9 | sudo apt-key add -
+KEY="E298A3A825C0D65DFD57CBB651716619E084DAB9"
+gpg --keyserver keyserver.ubuntu.com --recv-key $KEY
+test $? != 0 && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys $KEY
+gpg -a --export $KEY | sudo apt-key add -
 sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)/"
 #sudo add-apt-repository ppa:marutter/rrutter
 sudo apt-get update
