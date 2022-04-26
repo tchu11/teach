@@ -10,14 +10,14 @@ echo
 echo -n "Enter choice [1-4] or do nothing to skip: "
 read -t 15 -n 1 INSTALL
 echo
-KEY="E298A3A825C0D65DFD57CBB651716619E084DAB9"
-gpg --keyserver keyserver.ubuntu.com --recv-key $KEY
-test $? != 0 && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys $KEY
-gpg -a --export $KEY | sudo apt-key add -
-sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)/"
-#sudo add-apt-repository ppa:marutter/rrutter
-sudo apt-get update
-sudo apt-get install -y r-base r-base-dev
+
+KEY="298A3A825C0D65DFD57CBB651716619E084DAB9"
+sudo apt install --no-install-recommends software-properties-common dirmngr
+wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+gpg --show-keys /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc | grep -i $KEY
+sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+sudo apt update
+sudo apt install -y r-base r-base-dev
 
 BIT="i386"
 test $(arch) == "x86_64" && BIT="amd64"
