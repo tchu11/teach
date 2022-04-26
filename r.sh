@@ -2,8 +2,8 @@
 echo
 echo "Install a graphical interface for R?"
 echo
-echo "	[1] Emacs Speaks Statistics (ESS) http://ess.r-project.org"
-echo "	[2] R Commander http://socserv.mcmaster.ca/jfox/Misc/Rcmdr/"
+echo "	[1] Emacs Speaks Statistics (ESS) https://ess.r-project.org"
+echo "	[2] R Commander https://cran.r-project.org/package=Rcmdr"
 echo "	[3] RKWard https://rkward.kde.org"
 echo "	[4] RStudio https://www.rstudio.com"
 echo
