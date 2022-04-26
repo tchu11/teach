@@ -21,12 +21,12 @@ sudo apt install -y r-base r-base-dev
 
 BIT="i386"
 test $(arch) == "x86_64" && BIT="amd64"
-test "$INSTALL" == 1 && sudo apt-get install -y ess
+test "$INSTALL" == 1 && sudo apt-get install -y elpa-ess
 test "$INSTALL" == 2 && sudo apt-get install -y r-cran-rcmdr
 test "$INSTALL" == 3 && sudo apt-get install -y rkward
 test "$INSTALL" == 4 && (
 	rm rstudio*deb
-	RSTUDIO=$(wget -q -O - http://www.rstudio.com/products/rstudio/download/ | grep -o -m 1 "http[^\']*$BIT\.deb")
+	RSTUDIO=$(wget -q -O - http://www.rstudio.com/products/rstudio/download/ | grep -o -m 1 "http[^\']*$BIT\.deb" | cut -d '"' -f1)
 	wget $RSTUDIO
 	sudo dpkg -i rstudio*deb
 	sudo apt-get check
